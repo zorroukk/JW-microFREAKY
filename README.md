@@ -1,4 +1,4 @@
-# JW trojan dropbox (SAFE)
+# JW microFREAKY
 
 > **Hermes ⇄ MicroFreak ⇄ FL Studio — full production kit**
 
