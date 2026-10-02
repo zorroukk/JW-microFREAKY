@@ -1,0 +1,24 @@
+# virtualenvs & caches
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+.mypy_cache/
+ruff_cache/
+
+# runtime artifacts — never ship logs
+*.log
+logs/
+runtime-logs/
+scratch/
+sendlog*
+*.jsonl.bak
+
+# local junk
+nul
+.env
+*.tmp
+*.bak
+Desktop.ini
+Thumbs.db

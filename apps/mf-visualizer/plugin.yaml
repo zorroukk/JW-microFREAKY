@@ -1,0 +1,6 @@
+name: mf-visualizer
+version: "0.5.0"
+description: MicroFreak panel visualizer - send-log + MIDI-IN mirror for the Arturia MicroFreak
+author: zorroukk
+license: MIT
+kind: standalone

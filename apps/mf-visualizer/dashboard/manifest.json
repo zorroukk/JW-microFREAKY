@@ -1,0 +1,9 @@
+{
+  "name": "mf-visualizer",
+  "label": "MicroFreak",
+  "description": "Arturia MicroFreak panel visualizer: live knob tracking, send history, mod matrix",
+  "icon": "Sliders",
+  "version": "0.5.0",
+  "tab": { "path": "/mf-visualizer", "position": "end", "hidden": true },
+  "api": "plugin_api.py"
+}

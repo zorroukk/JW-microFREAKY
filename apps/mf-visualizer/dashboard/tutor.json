@@ -1,0 +1,199 @@
+{
+ "schema": "mftutor/1",
+ "sources": [
+  {
+   "name": "Cycling Env",
+   "summary": "CycEnv: output of the Cycling Envelope Generator; repeatable Rise/Fall/Hold shapes; loops as a complex LFO in Run/Loop mode.",
+   "provenance": "official",
+   "cite": "FW5 manual §9.6 pp67–69 (cycling envelope) + §5.2.1 pp36–37 (matrix source row)"
+  },
+  {
+   "name": "ENV",
+   "summary": "ENV: output of the standard Envelope Generator; one ADS pass per gate; attack 0-10s, decay/release 0-13s, sustain held on key.",
+   "provenance": "official",
+   "cite": "FW5 manual §9.3 pp65–66 (stages) + §5.2.1 pp36–37"
+  },
+  {
+   "name": "LFO",
+   "summary": "LFO output; six shapes (sine, triangle, rising saw, square, random, gliding random); 0.06-100 Hz free or clock-synced 8/1..1/32.",
+   "provenance": "official",
+   "cite": "FW5 manual §8.1–8.2 pp62–63 (shapes, 0.06–100 Hz) + §5.2.1 pp36–37"
+  },
+  {
+   "name": "Pressure/Vel",
+   "summary": "PRESS row (the manual spells it PRESSURE; the panel says PRESS): keybed pressure or velocity per Utility>Preset>Press mode; capacitive, ~30% from finger skin up to 100% with harder contact. The routing lives in the preset's edit buffer, so a preset change drops it.",
+   "provenance": "official",
+   "cite": "FW5 manual §5.2.1 pp36–37 + §10.2 p72 (fingertip ≈30% of the pressure range)"
+  },
+  {
+   "name": "Key/Arp/Seq",
+   "summary": "KEY/ARP: combined output of keyboard, arpeggiator and sequencer; drives pitch-position and pattern-step modulation.",
+   "provenance": "official",
+   "cite": "FW5 manual §5.2.1 pp36–37 + §13.2 p92 (sequencer modulation tracks)"
+  }
+ ],
+ "destinations": [
+  {
+   "name": "Pitch",
+   "summary": "Oscillator pitch; adds to the hardwired 1V/oct. Key/Arp to Pitch doubles or triples step intervals; negative values shrink them to microtonal.",
+   "provenance": "official",
+   "cite": "FW5 manual §5.2.1 pp36–37 (first four destinations)"
+  },
+  {
+   "name": "Wave",
+   "summary": "Oscillator primary macro; engine-dependent: table select (Wavetable/WaveUser), sample start (Sample/Cloud Grains), waveform elsewhere.",
+   "provenance": "official",
+   "cite": "FW5 manual §6.2 p42 + per-engine §6.3 pp44–58"
+  },
+  {
+   "name": "Timbre",
+   "summary": "Oscillator tone macro; engine-dependent: cycle scan (Wavetable), grain density (Scan/Cloud/Hit Grains), FM amount (Two Op. FM).",
+   "provenance": "official",
+   "cite": "FW5 manual §6.2 p42 + per-engine §6.3 pp48–58"
+  },
+  {
+   "name": "Cutoff",
+   "summary": "Analog 12 dB/oct state-variable filter cutoff (~30 Hz to >15 kHz); hardwired to the envelope via Filter Amt, also a matrix destination.",
+   "provenance": "official",
+   "cite": "FW5 manual §5.2.1 pp36–37 + §7.2.1 p61 (cutoff modulation)"
+  },
+  {
+   "name": "Assign1/2/3",
+   "summary": "Three user-assignable destinations: Glide, Osc Type, Sample, Filter Resonance, Env stages, LFO/Arp rate, CycEnv stages, Matrix Amount.",
+   "provenance": "official",
+   "cite": "FW5 manual §5.2.2 p38 (assigning destinations) + §16.3 p120 (unison spread as a target)"
+  }
+ ],
+ "recipes": [
+  {
+   "source": "Cycling Env",
+   "destination": "Wave",
+   "hint": "CycEnv mode Loop or Env; small amount; slow rise/fall",
+   "result": "Wavesequencing / table-position motion; evolving timbre that never settles.",
+   "engine_note": "Wave = table select on Wavetable/WaveUser; sample start on Sample/Cloud Grains.",
+   "provenance": "official"
+  },
+  {
+   "source": "Cycling Env",
+   "destination": "Timbre",
+   "hint": "Amount ~30%; one-shot rise ~200 ms",
+   "result": "Per-note timbre bloom; engine-dependent cycle scan / grain density / FM amount.",
+   "engine_note": "Timbre = cycle scan (Wavetable), grain density (Scan/Cloud/Hit Grains), FM amount (Two Op. FM).",
+   "provenance": "official"
+  },
+  {
+   "source": "ENV",
+   "destination": "Cutoff",
+   "hint": "Use Filter Amt; moderate amount",
+   "result": "Classic per-note filter sweep: the note speaks, then closes.",
+   "engine_note": "",
+   "provenance": "official"
+  },
+  {
+   "source": "ENV",
+   "destination": "Pitch",
+   "hint": "Small amount",
+   "result": "Sudden pitch rise then slow fall: a note-attack chirp.",
+   "engine_note": "",
+   "provenance": "official"
+  },
+  {
+   "source": "ENV",
+   "destination": "Wave",
+   "hint": "Small amount",
+   "result": "Note-triggered wave or table jump on each key.",
+   "engine_note": "Manual names envelopes as Type modulators, not Wave, so keep this one small.",
+   "provenance": "inferred"
+  },
+  {
+   "source": "LFO",
+   "destination": "Cutoff",
+   "hint": "Triangle or slow sine; modest amount",
+   "result": "Standard filter sweep; add a little random for a fuzzy edge.",
+   "engine_note": "",
+   "provenance": "official"
+  },
+  {
+   "source": "LFO",
+   "destination": "Pitch",
+   "hint": "Random or slow square; ~30%",
+   "result": "Automatic transpositions or random pitch drift across a sequence.",
+   "engine_note": "",
+   "provenance": "official"
+  },
+  {
+   "source": "LFO",
+   "destination": "Timbre",
+   "hint": "Random wave shape",
+   "result": "Breathing, never-identical tone motion.",
+   "engine_note": "",
+   "provenance": "official"
+  },
+  {
+   "source": "LFO",
+   "destination": "Assign1/2/3",
+   "hint": "Assign target = LFO Rate",
+   "result": "Self-modulating LFO rate wobble.",
+   "engine_note": "",
+   "provenance": "official"
+  },
+  {
+   "source": "Pressure/Vel",
+   "destination": "Assign1/2/3",
+   "hint": "Assign target = Envelope Sustain",
+   "result": "Fingertip control of sustain level.",
+   "engine_note": "",
+   "provenance": "official"
+  },
+  {
+   "source": "Pressure/Vel",
+   "destination": "Cutoff",
+   "hint": "Amount near full",
+   "result": "Expressive brightness that opens as you press harder.",
+   "engine_note": "",
+   "provenance": "observed"
+  },
+  {
+   "source": "Pressure/Vel",
+   "destination": "Assign1/2/3",
+   "hint": "Assign target = Cycling Env Rise or Fall",
+   "result": "Finger controls envelope rise/fall times; negative-going shortens the fall.",
+   "engine_note": "",
+   "provenance": "official"
+  },
+  {
+   "source": "Key/Arp/Seq",
+   "destination": "Pitch",
+   "hint": "Route on top of the hardwired 1V/oct; try +/-",
+   "result": "Changes sequence step scope: 2-4 semitones, or microtonal when negative.",
+   "engine_note": "",
+   "provenance": "official"
+  },
+  {
+   "source": "Key/Arp/Seq",
+   "destination": "Assign1/2/3",
+   "hint": "Assign target = Oscillator Type",
+   "result": "Pattern-driven engine jumps per step or per note.",
+   "engine_note": "",
+   "provenance": "official"
+  }
+ ],
+ "unknowns": [
+  {
+   "question": "Does incoming MIDI channel aftertouch feed the matrix Pressure source on FW5?",
+   "why": "Manual documents keybed pressure/velocity only; a forum report is suggestive but not authoritative."
+  },
+  {
+   "question": "How deep is one CC step of modulation as heard (the stair-step question)?",
+   "why": "No per-step resolution is documented; a forum thread reports audible stair-steps on CC#23 and on pressure routing."
+  },
+  {
+   "question": "What is the value curve of a matrix amount into each destination's parameter range?",
+   "why": "Amount is documented as bipolar -100%..+100%, but the amount-to-parameter mapping is not published."
+  },
+  {
+   "question": "How smoothed is internal matrix modulation versus external CC?",
+   "why": "Reports say internal is smoother than fast CC, but no slew or latency figure is documented."
+  }
+ ]
+}

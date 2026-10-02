@@ -1,0 +1,112 @@
+#!/usr/bin/env python3
+"""Mix Doctor (Stage 1): gather a whole-mix snapshot + print a ranked diagnosis.
+
+READ-ONLY. Gathers via cheap bridge reads, runs the pure rule engine, prints a
+plain-language problem report with proposed fixes. Does NOT apply anything.
+
+    python scripts/run_mix_doctor.py [--no-params] [--max-tracks N]
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+import time
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+import contextlib
+
+from fl_studio_mcp.connection import get_bridge, reset_bridge  # noqa: E402
+from fl_studio_mcp.music import mix_doctor as md  # noqa: E402
+
+SEV_TAG = {"high": "[HIGH]", "medium": "[MED ]", "low": "[LOW ]"}
+
+
+def connect():
+    order = (
+        [os.environ["FLSTUDIO_MCP_TRANSPORT"]]
+        if os.environ.get("FLSTUDIO_MCP_TRANSPORT")
+        else ["tcp", "direct"]
+    )
+    for t in order:
+        os.environ["FLSTUDIO_MCP_TRANSPORT"] = t
+        reset_bridge()
+        try:
+            b = get_bridge()
+            if b.is_alive():
+                return b, t
+        except Exception as e:
+            print(f"  transport {t:6} unavailable: {type(e).__name__}: {e}")
+    return None, None
+
+
+def main() -> int:
+    with contextlib.suppress(Exception):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+    with_params = "--no-params" not in sys.argv
+    max_tracks = 64
+    if "--max-tracks" in sys.argv:
+        max_tracks = int(sys.argv[sys.argv.index("--max-tracks") + 1])
+    peak_samples = 15
+    if "--peak-samples" in sys.argv:
+        peak_samples = int(sys.argv[sys.argv.index("--peak-samples") + 1])
+
+    print("connecting to FL bridge...")
+    bridge, transport = connect()
+    if bridge is None:
+        print(
+            "FL bridge NOT reachable. Open FL Studio + bring up the MCP bridge "
+            "(daemon for tcp, or loopMIDI ports for direct)."
+        )
+        return 1
+    print(f"connected via {transport}.\n")
+
+    t0 = time.time()
+    snap = md.gather_snapshot(
+        bridge, with_params=with_params, max_tracks=max_tracks, peak_samples=peak_samples
+    )
+    gather_s = time.time() - t0
+    size_kb = len(json.dumps(snap, default=str).encode("utf-8")) / 1024.0
+    res = md.diagnose(snap)
+
+    print("=== Mix Doctor report ===")
+    print("transport   :", transport)
+    print("tracks       : %d   playing: %s" % (snap["track_count"], snap["playing"]))
+    print(f"gathered in  : {gather_s:.2f}s   snapshot {size_kb:.1f} KB   params={with_params}")
+    pw = snap.get("peak_window", {})
+    if snap["playing"]:
+        win_s = pw.get("samples", 0) * pw.get("interval_ms", 0) / 1000.0
+        print(
+            "peak sampling: SUSTAINED max -- %d reads/track over ~%.1fs window"
+            % (pw.get("samples", 0), win_s)
+        )
+    else:
+        print("peak sampling: skipped (project stopped)")
+    if snap.get("gather_errors"):
+        print(f"gather errors: {len(snap['gather_errors'])}  (e.g. {snap['gather_errors'][0]})")
+    s = res["summary"]
+    print("findings     : %d high, %d medium, %d low\n" % (s["high"], s["medium"], s["low"]))
+
+    for note in res["notes"]:
+        print("NOTE:", note)
+    if res["notes"]:
+        print()
+
+    if not res["findings"]:
+        print("No problems detected by the current rules. (Quiet mix, or play for level checks.)")
+    for i, f in enumerate(res["findings"], 1):
+        where = f" <{f['track']}>" if f["track"] else ""
+        print("%2d. %s %s%s" % (i, SEV_TAG.get(f["severity"], "[?]"), f["rule"], where))
+        print(f"    {f['message']}")
+        print(f"    evidence : {f['evidence']}")
+        fix = f["proposed_fix"]
+        print(f"    proposed : {fix.get('intent')}  ({fix.get('desc')})")
+    print("\n(Proposals only -- nothing applied. Stage 2 will let you approve + apply.)")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

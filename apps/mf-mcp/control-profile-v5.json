@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "profile_id": "official-v5",
+  "device": "Arturia MicroFreak",
+  "firmware_basis": "5.0.0",
+  "default": true,
+  "evidence": {
+    "authority": "official",
+    "source": "Arturia MicroFreak User Manual 5.0.1, Appendix D, PDF pages 146-147 (printed pages 141-142)",
+    "url": "https://downloads.arturia.net/products/microfreak/manual/microfreak_Manual_5_0_1_EN.pdf",
+    "verified_on": "2026-07-21"
+  },
+  "scope": {
+    "supports": ["documented_live_midi_cc"],
+    "does_not_claim": [
+      "full_preset_editing",
+      "mod_matrix_programming",
+      "effect_control",
+      "sample_transfer",
+      "wavetable_transfer",
+      "firmware_operations",
+      "sysex_write_support"
+    ]
+  },
+  "parameters": {
+    "spice": {"cc": 2, "min": 0, "max": 127, "kind": "continuous", "risk": "low"},
+    "glide": {"cc": 5, "min": 0, "max": 127, "kind": "continuous", "risk": "low"},
+    "oscillator_type": {"cc": 9, "min": 0, "max": 127, "kind": "discrete_unknown_boundaries", "risk": "medium"},
+    "wave": {"cc": 10, "min": 0, "max": 127, "kind": "engine_dependent_macro", "risk": "low"},
+    "timbre": {"cc": 12, "min": 0, "max": 127, "kind": "engine_dependent_macro", "risk": "low"},
+    "shape": {"cc": 13, "min": 0, "max": 127, "kind": "engine_dependent_macro", "risk": "low"},
+    "cutoff": {"cc": 23, "min": 0, "max": 127, "kind": "continuous", "risk": "low", "automation_note": "External CC sweeps may staircase; prefer internal modulation for smooth motion."},
+    "cycling_env_amount": {"cc": 24, "min": 0, "max": 127, "kind": "continuous", "risk": "low"},
+    "filter_amount": {"cc": 26, "min": 0, "max": 127, "kind": "bipolar_encoded_unknown_center", "risk": "low"},
+    "cycling_env_hold": {"cc": 28, "min": 0, "max": 127, "kind": "continuous", "risk": "low"},
+    "sustain": {"cc": 29, "min": 0, "max": 127, "kind": "continuous", "risk": "low"},
+    "keyboard_hold": {"cc": 64, "min": 0, "max": 127, "kind": "toggle", "risk": "low"},
+    "resonance": {"cc": 83, "min": 0, "max": 127, "kind": "continuous", "risk": "low"},
+    "arp_seq_rate_free": {"cc": 91, "min": 0, "max": 127, "kind": "continuous", "risk": "low"},
+    "arp_seq_rate_sync": {"cc": 92, "min": 0, "max": 127, "kind": "stepped_sync_division", "risk": "low"},
+    "lfo_rate_free": {"cc": 93, "min": 0, "max": 127, "kind": "continuous", "risk": "low"},
+    "lfo_rate_sync": {"cc": 94, "min": 0, "max": 127, "kind": "stepped_sync_division", "risk": "low"},
+    "cycling_env_rise": {"cc": 102, "min": 0, "max": 127, "kind": "continuous", "risk": "low"},
+    "cycling_env_fall": {"cc": 103, "min": 0, "max": 127, "kind": "continuous", "risk": "low"},
+    "attack": {"cc": 105, "min": 0, "max": 127, "kind": "continuous", "risk": "low"},
+    "decay_release": {"cc": 106, "min": 0, "max": 127, "kind": "mode_dependent_decay_release", "risk": "low"}
+  },
+  "aliases": {
+    "osc_type": "oscillator_type",
+    "oscillator_wave": "wave",
+    "oscillator_timbre": "timbre",
+    "oscillator_shape": "shape",
+    "filter_cutoff": "cutoff",
+    "filter_resonance": "resonance",
+    "envelope_attack": "attack",
+    "envelope_decay": "decay_release",
+    "envelope_sustain": "sustain"
+  },
+  "runtime_policy": {
+    "require_named_microfreak_port_by_default": true,
+    "never_fallback_to_first_midi_output": true,
+    "dry_run_when_device_missing": true,
+    "skip_unsupported_parameters": true,
+    "report_skipped_parameters": true,
+    "minimum_inter_message_delay_ms": 20,
+    "one_parameter_hardware_verification_first": true
+  }
+}
